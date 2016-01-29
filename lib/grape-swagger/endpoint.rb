@@ -337,6 +337,7 @@ module Grape
       when 'Symbol'
         'string'
       when /^\[(?<type>.*)\]$/
+        items ||= {}
         items[:type] = Regexp.last_match[:type].downcase
         if PRIMITIVE_MAPPINGS.key?(items[:type])
           items[:type], items[:format] = PRIMITIVE_MAPPINGS[items[:type]]
