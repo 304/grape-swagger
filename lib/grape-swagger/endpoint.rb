@@ -272,8 +272,6 @@ module Grape
     end
 
     def parse_params(param, value, path, method)
-      items = {}
-
       additional_documentation = value.is_a?(Hash) ? value[:documentation] : nil
       data_type = data_type(value)
 
@@ -304,6 +302,7 @@ module Grape
         parsed_params[:type], parsed_params[:format] = PRIMITIVE_MAPPINGS[data_type]
       end
 
+      items = build_items(value)
       parsed_params[:items] = items if items.present?
 
       parsed_params[:defaultValue] = example if example
@@ -313,6 +312,21 @@ module Grape
 
       parsed_params.merge!(enum_or_range_values) if enum_or_range_values
       parsed_params
+    end
+
+    def build_items(value)
+      items = {}
+
+      if value.is_a?(Hash)
+        case value[:type].to_s
+        when /^\[(?<type>.*)\]$/
+          items[:type] = Regexp.last_match[:type].downcase
+          if PRIMITIVE_MAPPINGS.key?(items[:type])
+            items[:type], items[:format] = PRIMITIVE_MAPPINGS[items[:type]]
+          end
+        end
+      end
+      items
     end
 
     # helper methods
@@ -337,11 +351,6 @@ module Grape
       when 'Symbol'
         'string'
       when /^\[(?<type>.*)\]$/
-        binding.pry
-        items[:type] = Regexp.last_match[:type].downcase
-        if PRIMITIVE_MAPPINGS.key?(items[:type])
-          items[:type], items[:format] = PRIMITIVE_MAPPINGS[items[:type]]
-        end
         'array'
       else
         parse_entity_name(raw_data_type)

@@ -27,6 +27,13 @@ describe 'Group Params as Array' do
         { 'declared_params' => declared(params) }
       end
 
+      params do
+        requires :array_of_strings, type: Array[String]
+      end
+      post '/array_of_strings' do
+        { 'declared_params' => declared(params) }
+      end
+
       add_swagger_documentation
     end
   end
@@ -79,6 +86,30 @@ describe 'Group Params as Array' do
                 {"in"=>"formData", "name"=>"typed_group[][name]", "description"=>"string given", "type"=>"string", "required"=>true, "allowMultiple"=>true},
                 {"in"=>"formData", "name"=>"typed_group[][email]", "description"=>"email given", "type"=>"string", "required"=>false, "allowMultiple"=>true},
                 {"in"=>"formData", "name"=>"typed_group[][others]", "description"=>nil, "type"=>"integer", "required"=>false, "allowMultiple"=>true, "format"=>"int32", "enum"=>[1, 2, 3]}
+        ]}}}})
+    end
+  end
+
+  describe "retrieves the documentation for array without keys parameters" do
+    subject do
+      get '/swagger_doc/array_of_strings'
+      JSON.parse(last_response.body)
+    end
+
+    specify do
+      expect(subject).to eql({
+        "info"=>{"title"=>"API title", "version"=>"v1"},
+        "swagger"=>"2.0",
+        "produces"=>["application/json"],
+        "host"=>"example.org",
+        "schemes" => ["https", "http"],
+        "paths"=>{
+          "/array_of_strings"=>{
+            "post"=>{
+              "produces"=>["application/json"],
+              "responses"=>{"201"=>{"description"=>"created ArrayOfString"}},
+              "parameters"=>[
+                {"in"=>"body", "name"=>"array_of_strings", "description"=>nil, "type"=>"array", "required"=>true, "allowMultiple"=>false, "items"=>{"type"=>"string"}},
         ]}}}})
     end
   end
