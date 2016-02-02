@@ -44,7 +44,7 @@ module GrapeSwagger
         target_routes        = target_class.combined_namespace_routes
         paths, definitions   = path_and_definition_objects(target_routes, options)
         output[:paths]       = paths unless paths.blank?
-        output[:definitions] = definitions unless definitions.blank?
+        output[:definitions] = definitions || {}
 
         output
       end
